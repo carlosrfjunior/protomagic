@@ -24,8 +24,8 @@ var versionCmd = &cobra.Command{
 	Short: "Print the version number of ProtoMagic",
 	Long:  `All software has versions. This is ProtoMagic's`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Version:\t", Version)
-		fmt.Println("build.Time:\t", Time)
-		fmt.Println("build.User:\t", User)
+		fmt.Println("Version: ", version)
+		fmt.Println("Date: ", date)
+		fmt.Println("Commit: ", commit)
 	},
 }

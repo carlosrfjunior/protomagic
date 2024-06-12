@@ -1,7 +1,8 @@
 package main
 
 var (
-	Version = "InDev"
-	Time    string
-	User    string
+	version = "InDev"
+	commit  string
+	date    string
+	// builtBy string
 )
