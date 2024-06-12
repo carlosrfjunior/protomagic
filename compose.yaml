@@ -1,0 +1,57 @@
+
+services:
+  db_pg:
+    image: postgres
+    restart: always
+    user: postgres
+    secrets:
+      - db-password
+    volumes:
+      - db-pg-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=protomagic
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - db-net
+  db_mysql:
+    image: mysql
+    restart: always
+    user: mysql
+    secrets:
+      - db-password
+    volumes:
+      - db-mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=protomagic
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db-password
+    ports:
+      - 3306:3306
+      - 33060:33060
+    expose:
+      - 3306
+      - 33060
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-uroot", "-ppass"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - db-net
+volumes:
+  db-pg-data:
+  db-mysql-data:
+secrets:
+  db-password:
+    file: configs/db-password.txt
+networks:
+  db-net:
+    driver: bridge
