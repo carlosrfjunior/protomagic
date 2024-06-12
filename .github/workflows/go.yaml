@@ -12,8 +12,8 @@ jobs:
         with:
           go-version: '1.22.x'
       - name: Install dependencies
-        run: go get .
+        run: go get ./cmd/protomagic
       - name: Build
-        run: go build -v ./...
+        run: go build -v ./cmd/protomagic
       - name: Test with the Go CLI
-        run: go test
+        run: go test ./cmd/protomagic
