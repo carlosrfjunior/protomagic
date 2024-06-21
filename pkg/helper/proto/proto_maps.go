@@ -5,7 +5,9 @@ type TMapTypes map[string]string
 
 var MapTypes = TMapTypes{
 	"VARCHAR":   "string",
+	"CHARACTER": "string",
 	"CHAR":      "string",
+	"UUID":      "string",
 	"BINARY":    "bytes",
 	"VARBINARY": "bytes",
 	"BLOB":      "google.protobuf.Any",
@@ -14,9 +16,9 @@ var MapTypes = TMapTypes{
 	"TEXT":      "google.protobuf.Any",
 	"ENUM":      "uint32",
 	"SET":       "string",
-	"INTEGER":   "int",
-	"INT":       "int",
-	"SMALLINT":  "int",
+	"INTEGER":   "int64",
+	"INT":       "int64",
+	"SMALLINT":  "int32",
 	"TINYINT":   "bool",
 	"MEDIUMINT": "int32",
 	"BIGINT":    "int64",

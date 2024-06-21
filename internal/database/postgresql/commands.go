@@ -37,16 +37,14 @@ func (c *Commands) Run() error {
 
 	log.Debugf("PostgreSQL ::: Data Base Name: %s", dataBaseName)
 
-	infoSchema, err := database.Query(db, dataBaseName, "select table_name, column_name, is_nullable, data_type, udt_name from information_schema.columns where table_schema = $1 and table_catalog = $2 ORDER BY table_name ASC", "public", dataBaseName)
+	infoSchema, err := database.Query(db, dataBaseName, "select table_name, column_name, is_nullable, udt_name, data_type from information_schema.columns where table_schema = $1 and table_catalog = $2 ORDER BY table_name ASC", "public", dataBaseName)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Query Tables: ", err)
 		return err
 	}
 
 	proto.RenderProto(infoSchema)
-
-	log.Debugf("%v", infoSchema)
 
 	return nil
 }

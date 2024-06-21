@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io/fs"
 	"os"
+	"os/exec"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -17,10 +18,6 @@ import (
 
 type variable map[string]any
 type vars = variable
-
-var allVars = vars{
-	"DataBaseName": "",
-}
 
 var funcMap = template.FuncMap{
 	"ToUpper":           strings.ToUpper,
@@ -39,42 +36,57 @@ var t = template.Must(template.New("proto").Funcs(funcMap).Parse(templateProto))
 // Renders the template file by creating a protobuf file
 func RenderProto(infoSchema *database.InformationSchema) {
 
+	path := viper.GetString("protobuf.output.path")
+
+	log.Debugf("The path output for proto files: %s", path)
+
+	if viper.GetBool("protobuf.output.reset") {
+		log.Debugf("You have chosen to recreate the directory: %s", path)
+		os.RemoveAll(path)
+	}
+
 	for tableName, columns := range infoSchema.Tables {
 
-		// type table map[string][]database.Table
 		var inSchema = &database.InformationSchema{
 			DataBaseName: infoSchema.DataBaseName,
 			Tables:       make(map[string][]database.Table),
 		}
-
-		log.Println(tableName, columns)
 		inSchema.Tables[tableName] = columns
+
+		log.Debugln("Tabela:", tableName, "Columns:", columns)
 
 		var f *os.File
 
-		path := "./proto"
-
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			if err := os.Mkdir(path, fs.ModePerm); err != nil {
-				panic(err)
+				log.Panic(err)
 			}
 		}
 
-		f, err := os.Create(fmt.Sprintf("%s/%s.proto", path, strings.ToLower(tableName)))
+		var filename = fmt.Sprintf("%s/%s.proto", path, strings.ToLower(tableName))
+
+		f, err := os.Create(filename)
 		if err != nil {
-			panic(err)
+			log.Panic(err)
 		}
 
 		if err := t.Execute(f, inSchema); err != nil {
-			panic(err)
+			log.Panic(err)
 		}
 
 		err = f.Close()
 		if err != nil {
-			panic(err)
+			log.Panic(err)
 		}
 
 	}
+
+	cmd := exec.Command("buf", "format", path, "-w")
+	if err := cmd.Run(); err != nil {
+		log.Errorf("Unable to execute buf command for indentation in path %s. Please verify! \n %v", path, err)
+	}
+
+	log.Infoln("Process rendered and finalized successfully!!!")
 
 }
 
@@ -102,8 +114,12 @@ func SumFunc(c, i int) int {
 }
 
 // Returns all the variables that has be defined for the template
-func GetAllVars() *variable {
-	return &allVars
+func GetAllVars() *vars {
+	return &vars{
+		"DataBaseName": "",
+		"Syntax":       viper.GetString("protobuf.syntax"),
+		"ApiVersion":   viper.GetString("protobuf.apiVersion"),
+	}
 }
 
 // Returns the template file template used by protomegic

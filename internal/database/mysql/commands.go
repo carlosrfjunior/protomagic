@@ -30,7 +30,7 @@ func (c *Commands) Run() error {
 	dataBaseName, err := database.GetDataBaseName(db, "SELECT DATABASE()")
 
 	if err != nil {
-		log.Fatal("Data Base Name: ", err)
+		log.Fatalln("Data Base Name: ", err)
 		return err
 	}
 
@@ -44,17 +44,6 @@ func (c *Commands) Run() error {
 	}
 
 	proto.RenderProto(infoSchema)
-
-	// for k, v := range infoSchema.Tables {
-
-	// 	type table map[string][]database.Table
-	// 	log.Println(k, v)
-	// 	t := make(table)
-	// 	t[k] = v
-	// 	helper.RenderProto(k, t)
-	// }
-
-	log.Debugf("%v", infoSchema.Tables)
 
 	return nil
 }

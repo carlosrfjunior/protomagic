@@ -1,10 +1,14 @@
+log:
+  level: debug
 databases:
-  # postgresql:
-  #   dataSourceName: postgres://postgres:12345@localhost:5432/protomagic?sslmode=disable
+  postgresql:
+    dataSourceName: postgres://postgres:12345@localhost:5432/protomagic?sslmode=disable
   mysql:
     dataSourceName: root:12345@tcp(127.0.0.1:3306)/lanxv3
 protobuf:
-  templateFile: "proto_template.gotmpl"
+  templateFile: proto_template.gotmpl
+  syntax: proto3
+  apiVersion: v1
   output:
     reset: true
     path: ./proto
