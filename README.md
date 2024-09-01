@@ -3,6 +3,8 @@
 # ProtoMagic
 ProtoMagic is a CLI that helps convert database tables into Protocol Buffers files.
 
+## Documentation
+[protomagic CLI](./docs/protomagic.md)
 
 ## Minimal configuration example
 ```yaml
