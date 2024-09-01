@@ -11,7 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	"github.com/carlosrfjunior/protomagic/internal/database"
+	"github.com/toolsascode/protomagic/internal/database"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )

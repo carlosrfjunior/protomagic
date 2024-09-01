@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/carlosrfjunior/protomagic/internal/database/mysql"
-	"github.com/carlosrfjunior/protomagic/internal/database/postgresql"
 	log "github.com/sirupsen/logrus"
+	"github.com/toolsascode/protomagic/internal/database/mysql"
+	"github.com/toolsascode/protomagic/internal/database/postgresql"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

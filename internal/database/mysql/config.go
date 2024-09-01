@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"strings"
 
-	"github.com/carlosrfjunior/protomagic/internal/database"
+	"github.com/toolsascode/protomagic/internal/database"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"

@@ -7,6 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Start application
 func init() {
 
 	initFlag()

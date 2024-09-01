@@ -4,8 +4,8 @@ import (
 	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/carlosrfjunior/protomagic/internal/database"
-	"github.com/carlosrfjunior/protomagic/pkg/helper/proto"
+	"github.com/toolsascode/protomagic/internal/database"
+	"github.com/toolsascode/protomagic/pkg/helper/proto"
 )
 
 type Commands struct{}
