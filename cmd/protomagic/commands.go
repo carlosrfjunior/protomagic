@@ -2,10 +2,14 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/carlosrfjunior/protomagic/internal/database/mysql"
 	"github.com/carlosrfjunior/protomagic/internal/database/postgresql"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var rootCmd = &cobra.Command{
@@ -14,6 +18,16 @@ var rootCmd = &cobra.Command{
 	Long: `ProtoMagic is a CLI that helps convert database tables into Protocol Buffers files.
 	Complete documentation is available at https://protomagic.dev`,
 	Run: func(cmd *cobra.Command, args []string) {
+
+		path := viper.GetString("protobuf.output.path")
+
+		log.Debugf("The path output for proto files: %s", path)
+
+		if viper.GetBool("protobuf.output.reset") {
+			log.Debugf("You have chosen to recreate the directory: %s", path)
+			os.RemoveAll(path)
+		}
+
 		postgresql.Generate().Run()
 		mysql.Generate().Run()
 	},
@@ -27,5 +41,6 @@ var versionCmd = &cobra.Command{
 		fmt.Println("Version: ", version)
 		fmt.Println("Date: ", date)
 		fmt.Println("Commit: ", commit)
+		fmt.Println("Built by: ", builtBy)
 	},
 }

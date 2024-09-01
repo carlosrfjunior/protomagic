@@ -20,29 +20,47 @@ type variable map[string]any
 type vars = variable
 
 var funcMap = template.FuncMap{
-	"ToUpper":           strings.ToUpper,
-	"ToLower":           strings.ToLower,
-	"ToTitle":           strings.ToTitle,
-	"ToCapitalize":      cases.Title(language.English, cases.Compact).String,
-	"ToCapitalizeTable": CapitalizeTable,
-	"ToTranslateType":   TranslateType,
-	"FieldBehavior":     FieldBehavior,
-	"sum":               SumFunc,
-	"dict":              GetAllVars,
+	"ToUpperCase":              strings.ToUpper,
+	"ToLowerCase":              strings.ToLower,
+	"ToTitleCase":              strings.ToTitle,
+	"ToCapitalize":             cases.Title(language.English, cases.Compact).String,
+	"ToPascalCase":             ToPascalCase,
+	"ToTranslateType":          ToTranslateType,
+	"ToCapitalWithUnderscores": ToCapitalWithUnderscores,
+	"FieldBehavior":            FieldBehavior,
+	"contains":                 strings.Contains,
+	"hasPrefix":                strings.HasPrefix,
+	"hasSuffix":                strings.HasSuffix,
+	"sum":                      SumFunc,
+	"dict":                     GetAllVars,
+}
+
+type Data struct {
+	Schemas database.InformationSchema
+	Column  database.ColumnEnum
+	Options any
 }
 
 var t = template.Must(template.New("proto").Funcs(funcMap).Parse(templateProto))
 
 // Renders the template file by creating a protobuf file
-func RenderProto(infoSchema *database.InformationSchema) {
+func RenderProto(infoSchema *database.InformationSchema, columnsEnum *database.ColumnEnum) {
 
 	path := viper.GetString("protobuf.output.path")
 
 	log.Debugf("The path output for proto files: %s", path)
 
-	if viper.GetBool("protobuf.output.reset") {
-		log.Debugf("You have chosen to recreate the directory: %s", path)
-		os.RemoveAll(path)
+	var options = map[string]string{
+		"java":   "true",
+		"objc":   "true",
+		"csharp": "true",
+		"php":    "true",
+		"ruby":   "true",
+	}
+	customOptions := viper.GetStringMapString("protobuf.customized.options")
+
+	if len(customOptions) < 1 {
+		customOptions = options
 	}
 
 	for tableName, columns := range infoSchema.Tables {
@@ -53,7 +71,22 @@ func RenderProto(infoSchema *database.InformationSchema) {
 		}
 		inSchema.Tables[tableName] = columns
 
-		log.Debugln("Tabela:", tableName, "Columns:", columns)
+		var columnsEnums = &database.ColumnEnum{
+			DataBaseName: infoSchema.DataBaseName,
+			Enums:        make(map[string][]database.Enum),
+		}
+
+		columnsEnums.Enums[tableName] = columnsEnum.Enums[tableName]
+
+		var dataTemplate = &Data{
+			Schemas: *inSchema,
+			Column:  *columnsEnums,
+			Options: make(map[string]string),
+		}
+
+		dataTemplate.Options = customOptions
+
+		log.Debugln("Tabela:", tableName, "Columns:", columns, "Options:", customOptions)
 
 		var f *os.File
 
@@ -70,7 +103,9 @@ func RenderProto(infoSchema *database.InformationSchema) {
 			log.Panic(err)
 		}
 
-		if err := t.Execute(f, inSchema); err != nil {
+		log.Printf("%v", dataTemplate)
+
+		if err := t.Execute(f, dataTemplate); err != nil {
 			log.Panic(err)
 		}
 
@@ -91,21 +126,37 @@ func RenderProto(infoSchema *database.InformationSchema) {
 }
 
 // Capitalize the table name for message session for proto file
-func CapitalizeTable(t string) string {
+func ToPascalCase(t string) string {
 	title := strings.ReplaceAll(t, "_", " ")
 	title = cases.Title(language.English, cases.Compact).String(title)
 	return strings.ReplaceAll(title, " ", "")
 }
 
-func TranslateType(t string) string {
+func ToCapitalWithUnderscores(t string) string {
+	title := strings.ReplaceAll(t, "_", " ")
+	title = cases.Upper(language.English, cases.Compact).String(title)
+	return strings.ReplaceAll(title, " ", "_")
+}
 
-	mapType, ok := MapTypes[strings.ToUpper(t)]
+func ToTranslateType(t string) string {
 
-	if ok {
-		return mapType
+	customMapTypes := viper.GetStringMapString("protobuf.customized.mapsTypes")
+
+	log.Debugln("Customized Map Types [TranslateType]: ", customMapTypes)
+
+	customMap, okc := customMapTypes[strings.ToUpper(t)]
+
+	if okc {
+		return customMap
 	}
 
-	return t
+	mapTypes, ok := MapTypes[strings.ToUpper(t)]
+
+	if ok {
+		return mapTypes
+	}
+
+	return ToPascalCase(t)
 }
 
 // Adds the SUM function for the template file
@@ -113,13 +164,35 @@ func SumFunc(c, i int) int {
 	return c + i
 }
 
+// func GetAllVars(key string) any {
+
+// 	var allVars = vars{
+// 		"DataBaseName": "",
+// 		"Syntax":       viper.GetString("protobuf.syntax"),
+// 		"ApiVersion":   viper.GetString("protobuf.apiVersion"),
+// 	}
+
+// 	if len(key) > 0 {
+
+// 		oneVar := allVars[key]
+
+// 		return oneVar
+
+// 	}
+
+// 	return ""
+// }
+
 // Returns all the variables that has be defined for the template
 func GetAllVars() *vars {
-	return &vars{
+
+	var allVars = vars{
 		"DataBaseName": "",
 		"Syntax":       viper.GetString("protobuf.syntax"),
 		"ApiVersion":   viper.GetString("protobuf.apiVersion"),
 	}
+
+	return &allVars
 }
 
 // Returns the template file template used by protomegic
@@ -129,14 +202,15 @@ func GetTemplateFileExample() string {
 
 // Returns the proper field behavior type
 func FieldBehavior(f string) string {
-	mapFieldBehavior, ok := MapFieldBehavior[strings.ToLower(f)]
-	customMapFieldBehavior := viper.GetStringMapString("protobuf.customFieldBehavior")
+	customMapFieldBehavior := viper.GetStringMapString("protobuf.customized.fieldBehavior")
 	customMap, okc := customMapFieldBehavior[strings.ToLower(f)]
 
 	// Customization of Field Behavior that it was defined in .protomagic.yaml file
 	if okc {
 		return customMap
 	}
+
+	mapFieldBehavior, ok := MapFieldBehavior[strings.ToLower(f)]
 
 	if ok {
 

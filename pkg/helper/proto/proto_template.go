@@ -1,11 +1,12 @@
 package proto
 
 var templateProto = `
-{{- range $tableName, $column := .Tables -}}
+
+{{- range $tableName, $column := .Schemas.Tables -}}
 
 syntax = "{{ dict.Syntax }}";
 
-package {{ $.DataBaseName | ToLower }}.api.{{ dict.ApiVersion }};
+package {{ $.Schemas.DataBaseName | ToLowerCase }}.api.{{ dict.ApiVersion }};
 
 import "google/api/annotations.proto";
 import "google/api/client.proto";
@@ -14,66 +15,87 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/date.proto";
 import "google/protobuf/any.proto";
 
-option csharp_namespace = "{{ $.DataBaseName | ToUpper }}.Api.{{ dict.ApiVersion | ToUpper }}";
-option go_package = "api.{{ $.DataBaseName | ToLower }}.com/go/{{ dict.ApiVersion }}/{{ $tableName | ToLower }}pb;{{ $tableName | ToLower }}pb";
+option go_package = "api.{{ $.Schemas.DataBaseName  | ToLowerCase }}.com/go/{{ dict.ApiVersion }}/{{ $tableName | ToLowerCase }}pb;{{ $tableName | ToLowerCase }}pb";
+{{ if and ($.Options.ruby) (contains $.Options.ruby "true") }}
+option ruby_package = "{{ $.Schemas.DataBaseName  | ToUpperCase }}::Api::{{ dict.ApiVersion | ToUpperCase }}";
+{{ end }}
+{{ if and ($.Options.java) (contains $.Options.java "true") }}
+option java_package = "com.{{ $.Schemas.DataBaseName  | ToLowerCase }}.api.{{ dict.ApiVersion }}";
 option java_multiple_files = true;
 option java_outer_classname = "{{ $tableName | ToCapitalize }}Proto";
-option java_package = "com.{{ $.DataBaseName | ToLower }}.api.{{ dict.ApiVersion }}";
-option objc_class_prefix = "{{ $tableName | ToUpper }}";
-option php_namespace = "{{ $.DataBaseName | ToUpper }}\\Api\\{{ dict.ApiVersion | ToUpper }}";
-option ruby_package = "{{ $.DataBaseName | ToUpper }}::Api::{{ dict.ApiVersion | ToUpper }}";
+{{ end }}
+{{ if and ($.Options.objc) (contains $.Options.objc "true") }}
+option objc_class_prefix = "{{ $tableName | ToUpperCase }}";
+{{ end }}
+{{ if and ($.Options.csharp) (contains $.Options.csharp "true") }}
+option csharp_namespace = "{{ $.Schemas.DataBaseName  | ToUpperCase }}.Api.{{ dict.ApiVersion | ToUpperCase }}";
+{{ end }}
+{{ if and ($.Options.php) (contains $.Options.php "true") }}
+option php_namespace = "{{ $.Schemas.DataBaseName  | ToUpperCase }}\\Api\\{{ dict.ApiVersion | ToUpperCase }}";
+option php_metadata_namespace = "{{ $.Schemas.DataBaseName | ToPascalCase }}";
+{{ end }}
 
-service {{ $tableName | ToCapitalizeTable }}Service {
-  rpc Create{{ $tableName | ToCapitalizeTable }}(Create{{ $tableName | ToCapitalizeTable }}Request) returns (Create{{ $tableName | ToCapitalizeTable }}Response) {
+{{ if (index $.Column.Enums $tableName) }}
+{{- range $table, $enums := $.Column.Enums }}
+enum {{ (index $enums 0).TypeName | ToPascalCase }} {
+{{- range $index, $value := $enums }} 
+   {{ (index $enums 0).TypeName | ToCapitalWithUnderscores}}_{{ $value.EnumLabel | ToCapitalWithUnderscores }}={{ $index }};
+{{- end }}
+{{- end }}
+}
+{{ end }}
+
+service {{ $tableName | ToPascalCase }}Service {
+  rpc Create{{ $tableName | ToPascalCase }}(Create{{ $tableName | ToPascalCase }}Request) returns (Create{{ $tableName | ToPascalCase }}Response) {
     option (google.api.http) = {
-      post: "/{{ dict.ApiVersion }}/{{ $tableName | ToLower }}/create"
+      post: "/{{ dict.ApiVersion }}/{{ $tableName | ToLowerCase }}/create"
       body: "*"
     };
   }
-  rpc Get{{ $tableName | ToCapitalizeTable }}(Get{{ $tableName | ToCapitalizeTable }}Request) returns (Get{{ $tableName | ToCapitalizeTable }}Response) {
-    option (google.api.http) = {get: "/{{ dict.ApiVersion }}/{{ $tableName | ToLower }}/{id}/get"};
+  rpc Get{{ $tableName | ToPascalCase }}(Get{{ $tableName | ToPascalCase }}Request) returns (Get{{ $tableName | ToPascalCase }}Response) {
+    option (google.api.http) = {get: "/{{ dict.ApiVersion }}/{{ $tableName | ToLowerCase }}/{id}/get"};
     option (google.api.method_signature) = "id";
   }
-  rpc Update{{ $tableName | ToCapitalizeTable }}(Update{{ $tableName | ToCapitalizeTable }}Request) returns (Update{{ $tableName | ToCapitalizeTable }}Response) {
+  rpc Update{{ $tableName | ToPascalCase }}(Update{{ $tableName | ToPascalCase }}Request) returns (Update{{ $tableName | ToPascalCase }}Response) {
     option (google.api.http) = {
-      patch: "/{{ dict.ApiVersion }}/{{ $tableName | ToLower }}/{id}/update"
+      patch: "/{{ dict.ApiVersion }}/{{ $tableName | ToLowerCase }}/{id}/update"
       body: "id"
     };
     option (google.api.method_signature) = "id";
   }
-  rpc Delete{{ $tableName | ToCapitalizeTable }}(Delete{{ $tableName | ToCapitalizeTable }}Request) returns (Delete{{ $tableName | ToCapitalizeTable }}Response) {
-    option (google.api.http) = {delete: "/{{ dict.ApiVersion }}/{{ $tableName | ToLower }}/{id}/delete"};
+  rpc Delete{{ $tableName | ToPascalCase }}(Delete{{ $tableName | ToPascalCase }}Request) returns (Delete{{ $tableName | ToPascalCase }}Response) {
+    option (google.api.http) = {delete: "/{{ dict.ApiVersion }}/{{ $tableName | ToLowerCase }}/{id}/delete"};
     option (google.api.method_signature) = "id";
   }
 }
 
-message Get{{ $tableName | ToCapitalizeTable }}Request {
+message Get{{ $tableName | ToPascalCase }}Request {
 	string id = 1;
 }
-message Create{{ $tableName | ToCapitalizeTable }}Request {
+message Create{{ $tableName | ToPascalCase }}Request {
 	{{- range $index, $value := $column }}
-	{{ $value.DataType | ToTranslateType }} {{ $value.ColumnName }} = {{ sum $index 1  }}{{ $value.ColumnName | FieldBehavior }};
+	{{ $value.DataType | ToTranslateType }} {{ $value.ColumnName | ToLowerCase }} = {{ sum $index 1  }}{{ $value.ColumnName | FieldBehavior | ToLowerCase }};
 	{{- end }}
 }
-message Update{{ $tableName | ToCapitalizeTable }}Request {
+message Update{{ $tableName | ToPascalCase }}Request {
 	string id = 1;
 }
-message Delete{{ $tableName | ToCapitalizeTable }}Request {
+message Delete{{ $tableName | ToPascalCase }}Request {
 	string id = 1;
 }
 
-message Get{{ $tableName | ToCapitalizeTable }}Response {
+message Get{{ $tableName | ToPascalCase }}Response {
 	{{- range $index, $value := $column }}
 	{{ $value.DataType | ToTranslateType }} {{ $value.ColumnName }} = {{ sum $index 1  }}{{ $value.ColumnName | FieldBehavior }};
 	{{- end }}
 }
-message Create{{ $tableName | ToCapitalizeTable }}Response {
+message Create{{ $tableName | ToPascalCase }}Response {
 	string id = 1;
 }
-message Update{{ $tableName | ToCapitalizeTable }}Response {
+message Update{{ $tableName | ToPascalCase }}Response {
 	string id = 1;
 }
-message Delete{{ $tableName | ToCapitalizeTable }}Response {
+message Delete{{ $tableName | ToPascalCase }}Response {
 	string id = 1;
 }
 

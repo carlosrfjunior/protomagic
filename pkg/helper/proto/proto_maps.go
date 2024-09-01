@@ -14,7 +14,6 @@ var MapTypes = TMapTypes{
 	"LONGBLOB":  "google.protobuf.Any",
 	"LONGTEXT":  "google.protobuf.Any",
 	"TEXT":      "google.protobuf.Any",
-	"ENUM":      "uint32",
 	"SET":       "string",
 	"INTEGER":   "int64",
 	"INT":       "int64",
