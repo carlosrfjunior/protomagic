@@ -10,9 +10,7 @@ version: 2
 
 before:
   hooks:
-    # You may remove this if you don't use go modules.
     - go mod tidy
-    # you may remove this if you don't need go generate
     - go generate ./...
 
 builds:
@@ -62,3 +60,34 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
+
+brews:
+  - name: protomagic
+    url_template: "https://github.com/toolsascode/protomagic/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    commit_author:
+      name: carlosrfjunior
+      email: carlosrfjunior@gmail.com
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    caveats: "How to use this binary"
+    homepage: "https://github.com/toolsascode/protomagic"
+    description: "ProtoMagic is a CLI that helps convert database tables into Protocol Buffers files (.proto)."
+    license: "Apache License 2.0"
+    repository:
+      owner: toolsascode
+      name: protomagic
+      branch: main
+
+scoops:
+  - name: protomagic
+    url_template: "https://github.com/toolsascode/protomagic/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    commit_author:
+      name: carlosrfjunior
+      email: carlosrfjunior@gmail.com
+    commit_msg_template: "Scoop update for {{ .ProjectName }} version {{ .Tag }}"
+    homepage: "https://github.com/toolsascode/protomagic"
+    description: "ProtoMagic is a CLI that helps convert database tables into Protocol Buffers files (.proto)."
+    license: "Apache License 2.0"
+    repository:
+      owner: toolsascode
+      name: protomagic
+      branch: main

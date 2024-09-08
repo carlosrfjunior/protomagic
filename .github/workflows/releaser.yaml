@@ -57,8 +57,9 @@ jobs:
             <details>
               <summary>Output</summary>
               ```json
+
               $ARTIFACTS
-              ```
+
             </details>
 
             ## Metadata:
@@ -66,6 +67,8 @@ jobs:
             <details>
               <summary>Output</summary>
               ```json
+
               $METADATA
+              
               ```
             </details>
