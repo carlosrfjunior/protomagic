@@ -1,10 +1,7 @@
 package main
 
 import (
-	log "github.com/sirupsen/logrus"
-
 	"github.com/spf13/cobra"
-	"github.com/spf13/cobra/doc"
 	"github.com/spf13/viper"
 )
 
@@ -40,16 +37,6 @@ func initFlag() {
 	viper.SetDefault("license", "Apache 2.0")
 
 	rootCmd.AddCommand(versionCmd)
-
-	GenerateDoc()
-
-}
-
-func GenerateDoc() {
-
-	err := doc.GenMarkdownTree(rootCmd, "./docs")
-	if err != nil {
-		log.Fatal(err)
-	}
+	rootCmd.AddCommand(docsCmd)
 
 }

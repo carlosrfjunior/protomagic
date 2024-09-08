@@ -1,10 +1,10 @@
-<p align="center"><a href="https://github.com/toolsascode/protomagic"><image src="./assets/protomagic.png" style="width: 100px;"></a></p>
+<p align="center"><a href="https://github.com/toolsascode/protomagic"><image src="assets/protomagic.png" style="width: 100px;"></a></p>
 
 # ProtoMagic
 ProtoMagic is a CLI that helps convert database tables into Protocol Buffers files.
 
 ## Documentation
-[protomagic CLI](./docs/protomagic.md)
+[protomagic CLI](docs/protomagic.md)
 
 ## Minimal configuration example
 ```yaml
@@ -18,7 +18,7 @@ databases:
 
 ## Complete configuration example
 
-See: [protomagic.yaml](./example/configs/.protomagic.yaml)
+See: [protomagic.yaml](example/configs/.protomagic.yaml)
 
 ## ProtoMagic CLI
 - Run the command by specifying the configuration file
