@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/toolsascode/protomagic/internal/database/postgresql"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/cobra/doc"
 	"github.com/spf13/viper"
 )
 
@@ -42,5 +44,31 @@ var versionCmd = &cobra.Command{
 		fmt.Println("Date: ", date)
 		fmt.Println("Commit: ", commit)
 		fmt.Println("Built by: ", builtBy)
+	},
+}
+
+var docsCmd = &cobra.Command{
+	Use:    "docs",
+	Short:  "Generating ProtoMagic CLI markdown documentation.",
+	Long:   `Allow generating documentation in markdown format for ProtoMagic CLI internal commands`,
+	Hidden: true,
+	Run: func(cmd *cobra.Command, args []string) {
+
+		var path = "./docs"
+
+		if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+			err := os.Mkdir(path, os.ModePerm)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
+		log.Info("Generating markdown documentation")
+		err := doc.GenMarkdownTree(rootCmd, path)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Infof("Documentation successfully generated in %s", path)
 	},
 }
