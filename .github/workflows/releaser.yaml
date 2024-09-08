@@ -5,12 +5,12 @@ on:
   push:
     # run only against tags
     tags:
-      - "*"
+      - 'v*'
 
 permissions:
-  contents: write
-  # packages: write
-  # issues: write
+  contents: write # needed to write releases
+  id-token: write # needed for keyless signing
+  packages: write # needed for ghcr access
 
 jobs:
   goreleaser:
@@ -24,7 +24,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.22.x'
-          
       - name: Import GPG key
         id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v6
@@ -32,6 +31,7 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PROTO_PASSPHRASE }}
       - name: Run GoReleaser
+        id: goreleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           version: "~> v2"
@@ -39,3 +39,33 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PROTO_GITHUB_TOKEN }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+      - name: Upload assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: protomagic
+          path: dist/*
+      - uses: WcAServices/markdown-template-action@v1
+        with:
+          variables: >-
+            ARTIFACTS=${{ steps.goreleaser.outputs.artifacts }}
+            METADATA=${{ steps.goreleaser.outputs.metadata }}
+          
+          # language="markdown"
+          template: |
+            ## Artifacts:
+
+            <details>
+              <summary>Output</summary>
+              ```json
+              $ARTIFACTS
+              ```
+            </details>
+
+            ## Metadata:
+
+            <details>
+              <summary>Output</summary>
+              ```json
+              $METADATA
+              ```
+            </details>
