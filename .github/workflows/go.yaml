@@ -1,8 +1,13 @@
-name: Go
-on: [push]
+name: Testing
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
 
 jobs:
-  build:
+  testing:
     runs-on: ubuntu-latest
 
     steps:
