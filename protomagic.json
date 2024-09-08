@@ -1,0 +1,29 @@
+{
+    "version": "0.1.0-beta",
+    "architecture": {
+        "32bit": {
+            "url": "https://github.com/toolsascode/protomagic/releases/download/v0.1.0-beta/protomagic_Windows_i386.zip",
+            "bin": [
+                "protomagic.exe"
+            ],
+            "hash": "be33e233cd100ecbe7f5ab2945e49042b8344d03fe7433cbaefa8409b8ed8dfb"
+        },
+        "64bit": {
+            "url": "https://github.com/toolsascode/protomagic/releases/download/v0.1.0-beta/protomagic_Windows_x86_64.zip",
+            "bin": [
+                "protomagic.exe"
+            ],
+            "hash": "4097ae696307c351115805ff0f0b76ac284143126d71c9479f9a32769db7df39"
+        },
+        "arm64": {
+            "url": "https://github.com/toolsascode/protomagic/releases/download/v0.1.0-beta/protomagic_Windows_arm64.zip",
+            "bin": [
+                "protomagic.exe"
+            ],
+            "hash": "5b2f07591cfd5ae70da9ee0b3847a1e81b6b52c69f402d69a43f9ac337263030"
+        }
+    },
+    "homepage": "https://github.com/toolsascode/protomagic",
+    "license": "Apache License 2.0",
+    "description": "ProtoMagic is a CLI that helps convert database tables into Protocol Buffers files (.proto)."
+}
