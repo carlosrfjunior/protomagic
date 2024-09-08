@@ -19,6 +19,7 @@ builds:
 
   - env:
       - CGO_ENABLED=0
+      - USERNAME=carlosrfjunior
     main: ./cmd/protomagic
     goos:
       - linux
